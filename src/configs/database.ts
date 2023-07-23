@@ -3,7 +3,7 @@ const Credentials = {
   database: 'school',
   hostname: 'localhost',
   port: 5432,
-  password: 'Apripandu300478!',
+  password: '',
   tls: {
     enabled: false
   }
