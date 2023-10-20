@@ -1,4 +1,4 @@
-import { user } from './controllers/index.ts';
+import { user } from './../controllers/_index.ts';
 import { Router } from 'https://deno.land/x/oak@v12.6.0/mod.ts';
 
 const router = new Router();
