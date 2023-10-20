@@ -1,14 +1,11 @@
-import { Response } from 'https://deno.land/x/oak@v12.6.0/mod.ts';
-import type { ResponseType } from '../types/index.ts';
+import type { ResponseType } from '../types/_index.ts';
+import { Context, Status } from 'https://deno.land/x/oak@v12.6.0/mod.ts';
 
-const response_json = (res: Response, code: number, data: ResponseType) => {
-  code = code || 200;
-
-  res.status = 200;
-  res.headers.set('Content-Type', 'application/json');
-  res.body = JSON.stringify(data);
-
-  return res;
+const response_json = (ctx: Context, code: Status, data: ResponseType) => {
+  ctx.response.status = code;
+  ctx.response.headers.set('Content-Type', 'application/json');
+  ctx.response.body = JSON.stringify(data);
+  return ctx;
 };
 
 export {
