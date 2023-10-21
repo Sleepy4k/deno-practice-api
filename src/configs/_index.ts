@@ -1,5 +1,5 @@
-import Credentials from './database.ts';
+import Database from './database.ts';
 
 export {
-  Credentials
+  Database
 }
