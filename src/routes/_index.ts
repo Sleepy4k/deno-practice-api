@@ -3,6 +3,6 @@ import { Router } from 'https://deno.land/x/oak@v12.6.0/mod.ts';
 
 const router = new Router();
 
-router.use(userRoute.routes());
+router.use("/api", userRoute.routes());
 
 export default router;
