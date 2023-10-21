@@ -1,5 +1,4 @@
-import { Database } from '../models/_index.ts';
-import { response_json } from '../helpers/_index.ts';
+import { debug, response_json } from '../helpers/_index.ts';
 import { UserRepository } from '../repositories/_index.ts';
 import { Status, RouterContext } from 'https://deno.land/x/oak@v12.6.0/mod.ts';
 
@@ -12,7 +11,7 @@ import { Status, RouterContext } from 'https://deno.land/x/oak@v12.6.0/mod.ts';
  */
 const index = async (context: RouterContext<"/user">) => {
   try {
-    const data = await UserRepository.index({ Database });
+    const data = await UserRepository.index();
 
     response_json(context, Status.OK, {
       success: true,
@@ -20,6 +19,8 @@ const index = async (context: RouterContext<"/user">) => {
       data: data.rows
     });
   } catch (error) {
+    debug('error', error.toString());
+
     response_json(context, Status.InternalServerError, {
       success: false,
       message: error.toString(),
@@ -38,7 +39,7 @@ const index = async (context: RouterContext<"/user">) => {
 const create = async (context: RouterContext<"/user">) => {
   try {
     const request = context.request;
-    const data = await UserRepository.create({ request, Database });
+    const data = await UserRepository.create({ request });
 
     if (typeof(data) === 'string') {
       return response_json(context, Status.BadRequest, {
@@ -54,6 +55,8 @@ const create = async (context: RouterContext<"/user">) => {
       data: data.rows
     });
   } catch (error) {
+    debug('error', error.toString());
+
     response_json(context, 500, {
       success: false,
       message: error.toString(),
@@ -72,7 +75,7 @@ const create = async (context: RouterContext<"/user">) => {
 const find = async (context: RouterContext<"/user/:id">) => {
   try {
     const id = context.params.id as string;
-    const data = await UserRepository.find({ id, Database });
+    const data = await UserRepository.find({ id });
 
     if (typeof(data) == 'string') {
       return response_json(context, Status.NotFound, {
@@ -88,6 +91,8 @@ const find = async (context: RouterContext<"/user/:id">) => {
       data: data.rows
     });
   } catch (error) {
+    debug('error', error.toString());
+
     response_json(context, 500, {
       success: true,
       message: error.toString(),
@@ -107,7 +112,7 @@ const update = async (context: RouterContext<"/user/:id">) => {
   try {
     const request = context.request;
     const id = context.params.id as string;
-    const data = await UserRepository.update({ request, id, Database });
+    const data = await UserRepository.update({ request, id });
 
     if (typeof(data) == 'string') {
       return response_json(context, Status.NotFound, {
@@ -123,6 +128,8 @@ const update = async (context: RouterContext<"/user/:id">) => {
       data: data.rows
     });
   } catch (error) {
+    debug('error', error.toString());
+
     response_json(context, 500, {
       success: true,
       message: error.toString(),
@@ -141,7 +148,7 @@ const update = async (context: RouterContext<"/user/:id">) => {
 const destroy = async (context: RouterContext<"/user/:id">) => {
   try {
     const id = context.params.id as string;
-    const data = await UserRepository.destroy({ id, Database });
+    const data = await UserRepository.destroy({ id });
 
     if (typeof(data) == 'string') {
       return response_json(context, Status.NotFound, {
@@ -157,6 +164,8 @@ const destroy = async (context: RouterContext<"/user/:id">) => {
       data: data.rows
     });
   } catch (error) {
+    debug('error', error.toString());
+
     response_json(context, 500, {
       success: true,
       message: error.toString(),
