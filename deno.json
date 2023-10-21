@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run --watch --config ./deno.json ./src/main.ts",
-    "start": "deno run --config ./deno.json ./src/main.ts"
+    "dev": "deno run --watch --config ./deno.json ./main.ts",
+    "start": "deno run --config ./deno.json ./main.ts"
   }
 }
