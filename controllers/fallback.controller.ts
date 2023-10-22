@@ -2,20 +2,25 @@ import { response_json } from '../helpers/_index.ts';
 import { Status, Context } from 'https://deno.land/x/oak@v12.6.0/mod.ts';
 
 /**
- * @desc Handle not found route
+ * @desc Fallback Controller Class
  * 
- * @param context Context
- * 
- * @return void
+ * @class FallbackController
  */
-const notfound = (context: Context) => {
-  response_json(context, Status.NotFound, {
-    success: false,
-    message: 'Route Not Found',
-    data: []
-  });
-};
+class FallbackController {
+  /**
+   * @desc Handle not found route
+   * 
+   * @param context Context
+   * 
+   * @return void
+   */
+  static notfound(context: Context) {
+    response_json(context, Status.NotFound, {
+      success: false,
+      message: 'Route Not Found',
+      data: []
+    });
+  }
+}
 
-export {
-  notfound
-};
+export default FallbackController;

@@ -1,7 +1,7 @@
-import * as user from './user.controller.ts';
-import * as fallback from './fallback.controller.ts';
+import UserController from './user.controller.ts';
+import FallbackController from './fallback.controller.ts';
 
 export {
-  user,
-  fallback
+  UserController,
+  FallbackController
 };
