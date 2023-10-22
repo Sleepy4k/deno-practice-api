@@ -1,6 +1,6 @@
 import router from './routes/_index.ts';
-import { fallback } from './controllers/_index.ts';
 import "https://deno.land/x/dotenv@v3.2.2/load.ts";
+import { FallbackController } from './controllers/_index.ts';
 import { Application, isHttpError } from 'https://deno.land/x/oak@v12.6.0/mod.ts';
 
 const app = new Application();
@@ -49,7 +49,7 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 // Not Found
-app.use(fallback.notfound);
+app.use(FallbackController.notfound);
 
 // Listen event
 app.addEventListener("listen", ({ hostname, port, serverType }) => {
