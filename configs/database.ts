@@ -15,10 +15,10 @@ const Credentials = {
 const Database = new Client(Credentials)
 
 Database.connect()
-.catch((err) => {
-  console.log(err);
-}).finally(() => {
-  console.log('Database connected');
-});
+  .catch((err) => {
+    console.log(err);
+  }).finally(() => {
+    console.log('Database connected');
+  });
 
 export default Database;
