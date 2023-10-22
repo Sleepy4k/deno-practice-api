@@ -1,94 +1,117 @@
 import { userModel } from '../models/_index.ts';
+import { hash_password } from "../helpers/hashing.ts";
 import type { UserType, FullUserType } from '../types/_index.ts';
 import { Request } from 'https://deno.land/x/oak@v12.6.0/mod.ts';
 
 /**
- * @desc Handle query for get users
+ * @desc User Repository Class
  * 
- * @returns QueryObjectResult<UserType>
+ * @class UserRepository
  */
-const index = async () => {
-  const data = await userModel.get<UserType>({ column: 'id, email, role' });
-  return data;
-};
+class UserRepository {
+  /**
+   * @desc UserModel
+   * 
+   * @private
+   * @static
+   */
+  static #userModel = new userModel();
 
-/**
- * @desc Handle query for create user
- * 
- * @param request Request
- * 
- * @returns QueryObjectResult<UserType> | string
- */
-const create = async ({ request }: { request: Request }) => {
-  const body = request.body();
-  const { email, password, password_confirmation } = await body.value;
+  /**
+   * @desc Get data from database
+   * 
+   * @param column string
+   * @param where string
+   * 
+   * @returns QueryObjectResult<T> | QueryObjectResult<unknown>
+   */
+  static async index() {
+    const data = await UserRepository.#userModel.get<UserType>({ column: 'id, email, role' });
 
-  if (!email || !password || !password_confirmation) return "Email, password, and password confirmation are required";
-  if (password !== password_confirmation) return "Password confirmation not match";
+    return data;
+  }
 
-  const validate = await userModel.get<UserType>({ column: 'id, email, role', where: `email = '${email}'` });
-  if (validate.rowCount !== 0) return "Email already exists";
+  /**
+   * @desc Create data to database
+   * 
+   * @param column string
+   * @param value string
+   * @param returning string
+   * 
+   * @returns QueryObjectResult<T> | QueryObjectResult<unknown>
+   */
+  static async create({ request }: { request: Request }) {
+    const body = request.body();
+    const { email, password, password_confirmation } = await body.value;
 
-  const data = await userModel.create<UserType>({ column: 'email, role, password', value: `'${email}', 'user', '${password}'`, returning: 'id, email, role' });
-  return data;
-};
+    if (!email || !password || !password_confirmation) return "Email, password, and password confirmation are required";
+    if (password !== password_confirmation) return "Password confirmation not match";
 
-/**
- * @desc Handle query for get single user
- * 
- * @param id string
- * 
- * @returns QueryObjectResult<UserType> | string
- */
-const find = async ({ id }: { id: string }) => {
-  const data = await userModel.get<UserType>({ column: 'id, email, role', where: `id = ${id}` });
-  if (data.rowCount === 0) return "User not found";
+    const validate = await UserRepository.#userModel.get<FullUserType>({ column: '*', where: `email = '${email}'` });
+    if (validate.rowCount !== 0) return "Email already exists";
 
-  return data;
-};
+    const password_hash = await hash_password(password);
+    const data = await UserRepository.#userModel.create<UserType>({ column: 'email, role, password', value: `'${email}', 'user', '${password_hash}'`, returning: 'id, email, role' });
 
-/**
- * @desc Handle query for update single user
- * 
- * @param request Request
- * @param id string
- * 
- * @returns QueryObjectResult<UserType> | string
- */
-const update = async ({ request, id }: { request: Request, id: string }) => {
-  const body = request.body();
-  const { email, password, password_confirmation } = await body.value;
+    return data;
+  }
 
-  if (!email || !password || !password_confirmation) return "Email, password, and password confirmation are required";
-  if (password !== password_confirmation) return "Password confirmation not match";
+  /**
+   * @desc Get data from database
+   * 
+   * @param column string
+   * @param where string
+   * 
+   * @returns QueryObjectResult<T> | QueryObjectResult<unknown>
+   */
+  static async find({ id }: { id: string }) {
+    const data = await UserRepository.#userModel.get<UserType>({ column: 'id, email, role', where: `id = ${id}` });
+    if (data.rowCount === 0) return "User not found";
 
-  const validate = await userModel.get<FullUserType>({ column: '*', where: `email = '${email}'` });
-  if (validate.rowCount !== 0) return "Email already exists";
+    return data;
+  }
 
-  const data = await userModel.update<UserType>({ column: 'email, password', value: `'${email}', '${password}'`, where: `id = ${id}`, returning: 'id, email, role' });
-  if (data.rowCount === 0) return "User not found";
+  /**
+   * @desc Update data to database
+   * 
+   * @param column string
+   * @param value string
+   * @param where string
+   * @param returning string
+   * 
+   * @returns QueryObjectResult<T> | QueryObjectResult<unknown>
+   */
+  static async update({ request, id }: { request: Request, id: string }) {
+    const body = request.body();
+    const { email, password, password_confirmation } = await body.value;
 
-  return data;
-};
+    if (!email || !password || !password_confirmation) return "Email, password, and password confirmation are required";
+    if (password !== password_confirmation) return "Password confirmation not match";
 
-/**
- * @desc Handle query for delete single user
- * 
- * @param id string
- * 
- * @returns QueryObjectResult<UserType> | string
- */
-const destroy = async ({ id }: { id: string }) => {
-  const data = await userModel.destroy<UserType>({ where: `id = ${id}`, returning: 'id, email, role' });
-  if (data.rowCount === 0) return "User not found";
+    const validate = await UserRepository.#userModel.get<FullUserType>({ column: '*', where: `email = '${email}'` });
+    if (validate.rowCount === 0) return "User not found";
+    if (validate.rowCount !== 0 && validate.rows[0].id !== parseInt(id)) return "Email already exists";
 
-  return data;
-};
+    const password_hash = (await hash_password(password)).split(",").join("|");
+    const data = await UserRepository.#userModel.update<UserType>({ column: 'email, password', value: `'${email}', '${password_hash.toString()}'`, where: `id = ${id}`, returning: 'id, email, role' });
 
-export {
-  index,
-  create,
-  find,
-  update,
-  destroy
+    return data;
+  }
+
+  /**
+   * @desc Delete data from database
+   * 
+   * @param where string
+   * @param returning string
+   * 
+   * @returns QueryObjectResult<T> | QueryObjectResult<unknown>
+   */
+  static async destroy({ id }: { id: string }) {
+    const data = await UserRepository.#userModel.destroy<UserType>({ where: `id = ${id}`, returning: 'id, email, role' });
+    if (data.rowCount === 0) return "User not found";
+
+    return data;
+  }
 }
+
+export default UserRepository;

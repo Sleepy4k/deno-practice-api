@@ -1,4 +1,4 @@
-import * as UserRepository from './user.repository.ts';
+import UserRepository from './user.repository.ts';
 
 export {
   UserRepository
